@@ -4,7 +4,7 @@ This script is designed to programatically retrieve subtitles from the PIP Inspe
 
 This has been roughly put together and feedback is very welcome.
 
-How to run
+# How to run
 
 To run on an individual PID and have the subtitles printed to your terminal, run the following command:
 ```
