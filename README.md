@@ -8,12 +8,12 @@ This has been roughly put together and feedback is very welcome.
 
 To run on an individual PID and have the subtitles printed to your terminal, run the following command:
 ```
-python3 extract_subtitle_xml.py --pid \<insert PID here\>
+python3 extract_subtitle_xml.py --pid <insert PID here>
 ```
 
 Alternatively, to run on many PIDs at once, create a csv file with the PIDs in column A with the header 'episode'. Then run:
 ```
-python3 extract_subtitle_xml.py --file \<input CSV file here\>
+python3 extract_subtitle_xml.py --file <input CSV file here>
 ```
 This will create a JSON file named 'output.csv' containing the PIDs and their associated subtitles.
 
