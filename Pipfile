@@ -10,6 +10,10 @@ ndg-httpsclient = "*"
 pyasn1 = "*"
 idna = "*"
 urllib3 = "*"
+beautifulsoup4 = "*"
+bs4 = "*"
+lxml = "*"
+pandas = "*"
 
 [dev-packages]
 
