@@ -17,26 +17,29 @@ def read_input():
     if args.file:
         print("Reading from file: " + args.file)
         df = pandas.read_csv(args.file)
-        subtitles = []
         print(" - PIDs to look up:")
         print(df['episode'])
+
+        subtitles = []
         for pid in df['episode']:
             text = get_subtitle_text_from_pid(pid)
             subtitles.append(text)
+            print(" - Completed search.")
         df['subtitles'] = subtitles
-        print(" - Complete")
 
         if args.output:
-            output_file_name = working_directory + "/" + args.output
+            output_file_path = working_directory + "/" + args.output
         else:
-            output_file_name = working_directory + "/output.jsonl"
-
-        print(" - Writing to JSON: " + output_file_name)
-        df.to_json(path_or_buf=output_file_name, orient='records', lines=True)
+            output_file_path = working_directory + "/output.jsonl"
+        print(" - Writing to JSON: " + output_file_path)
+        df.to_json(path_or_buf=output_file_path, orient='records', lines=True)
 
     elif args.pid:
         text = get_subtitle_text_from_pid(args.pid)
         print(text[0:50])
+
+    else:
+        print("No episode PIDs supplied. Please append '--pid <enter PID here>' or '--file <enter file containing PIDs here>'.")
 
 def parseOptions():
         parser = argparse.ArgumentParser(description='InputOptions')
@@ -65,7 +68,7 @@ def extract_data_from_url(url):
     return response.content
 
 def get_subtitle_url_from_pid(episode_pid):
-    print("***************************************************************\n Looking up PID: " + str(episode_pid))
+    print("\n***************************************************************\n Looking up PID: " + str(episode_pid))
     episode_versions_url = "https://api.live.bbc.co.uk/pips/api/v1/episode/pid." + episode_pid + "/versions/"
     episode_versions_data = extract_data_from_url(episode_versions_url)
 
