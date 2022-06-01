@@ -59,41 +59,42 @@ def get_subtitle_url_from_pid(episode_pid):
     episode_versions_url = "https://api.live.bbc.co.uk/pips/api/v1/episode/pid." + episode_pid + "/versions/"
     episode_versions_data = extract_data_from_url(episode_versions_url)
 
-    episode_versions_soup = BeautifulSoup(episode_versions_data)
-    versions = []
-    for version in episode_versions_soup.find_all('version', href=True):
-        versions.append(version['href'])
-
-    first_version_url=versions[0]
+    first_version_url = get_first_version_url_from_episode_version_data(episode_versions_data)
     media_assets_url = first_version_url+ "media_assets/"
 
-    subtitle_available = None
-    files = []
+    subtitle_file = ""
     page_no = 1
 
-    while ((subtitle_available == None) and (page_no<=10)):
+    while ((subtitle_file == "") and (page_no<=10)):
         media_assets_page_url = media_assets_url + "?page="+ str(page_no)
         media_assets_page_data = extract_data_from_url(media_assets_page_url)
         media_assets_page_soup = BeautifulSoup(media_assets_page_data)
         filename_list = media_assets_page_soup.find_all('filename')
 
         for line in filename_list:
-            filename = line.get_text()
-            files.append(filename)
-
-        for file in files:
-            subtitle_available = re.search('^ng/modav/', file)
+            file = line.get_text()
+            if file.startswith('ng/modav'):
+                print(" ---- File FOUND = "+ file)
+                subtitle_file = file
+                break
 
         page_no += 1
 
-    if subtitle_available != None:
-        subtitles_files = [i for i in files if i.startswith('ng/modav/')]
-        subtitle_file_url = "https://livemodavsharedresources-publicstaticbucket-16n1nhlyoptzf.s3.amazonaws.com/iplayer/subtitles/" + subtitles_files[0]
+    if (subtitle_file != ""):
+        subtitle_file_url = "https://livemodavsharedresources-publicstaticbucket-16n1nhlyoptzf.s3.amazonaws.com/iplayer/subtitles/" + subtitle_file
         print(" - Subtitles located at "+ subtitle_file_url)
         return subtitle_file_url
     else:
         print(" - Subtitles could not be located.")
         return "Error"
+
+def get_first_version_url_from_episode_version_data(episode_versions_data):
+    episode_versions_soup = BeautifulSoup(episode_versions_data)
+    versions = []
+    for version in episode_versions_soup.find_all('version', href=True):
+        versions.append(version['href'])
+    return versions[0]
+
 
 def get_subtitle_text_from_url(url):
     subtitle_file_data = extract_data_from_url(url)
