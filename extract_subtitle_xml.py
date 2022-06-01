@@ -10,20 +10,29 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 username = os.path.expanduser('~')
 certificate_path = username + "/.ssh/dev.bbc.co.uk.pem"
+working_directory = os.getcwd()
 
 def read_input():
     args = parseOptions()
     if args.file:
+        print("Reading from file: " + args.file)
         df = pandas.read_csv(args.file)
         subtitles = []
-        print("PIDs to look up:")
+        print(" - PIDs to look up:")
         print(df['episode'])
         for pid in df['episode']:
             text = get_subtitle_text_from_pid(pid)
             subtitles.append(text)
         df['subtitles'] = subtitles
-        print(" - Writing to JSON")
-        df.to_json(path_or_buf='/home/marthellio/GitRepos/bbcrd-subtitle-extractor/output.jsonl', orient='records', lines=True)
+        print(" - Complete")
+
+        if args.output:
+            output_file_name = working_directory + "/" + args.output
+        else:
+            output_file_name = working_directory + "/output.jsonl"
+
+        print(" - Writing to JSON: " + output_file_name)
+        df.to_json(path_or_buf=output_file_name, orient='records', lines=True)
 
     elif args.pid:
         text = get_subtitle_text_from_pid(args.pid)
@@ -33,7 +42,8 @@ def parseOptions():
         parser = argparse.ArgumentParser(description='InputOptions')
         #parser.add_argument('pid', type=str, nargs='+')
         parser.add_argument('-p','--pid', type=str, help="The input pid.")
-        parser.add_argument('-f','--file', type=str, help="The input file(s) containing pids in column A.")
+        parser.add_argument('-f','--file', type=str, help="The input file containing pids in column A.")
+        parser.add_argument('-o','--output', type=str, help="The output file name. This will be saved to the current working directory. Default is 'output.jsonl'.")
         opts = parser.parse_args()
         return opts
 
@@ -55,7 +65,7 @@ def extract_data_from_url(url):
     return response.content
 
 def get_subtitle_url_from_pid(episode_pid):
-    print("***************************\n Looking up PID: " + str(episode_pid))
+    print("***************************************************************\n Looking up PID: " + str(episode_pid))
     episode_versions_url = "https://api.live.bbc.co.uk/pips/api/v1/episode/pid." + episode_pid + "/versions/"
     episode_versions_data = extract_data_from_url(episode_versions_url)
 
@@ -74,7 +84,6 @@ def get_subtitle_url_from_pid(episode_pid):
         for line in filename_list:
             file = line.get_text()
             if file.startswith('ng/modav'):
-                print(" ---- File FOUND = "+ file)
                 subtitle_file = file
                 break
 
