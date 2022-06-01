@@ -81,7 +81,7 @@ def get_subtitle_url_from_pid(episode_pid):
     while ((subtitle_file == "") and (page_no<=10)):
         media_assets_page_url = media_assets_url + "?page="+ str(page_no)
         media_assets_page_data = extract_data_from_url(media_assets_page_url)
-        media_assets_page_soup = BeautifulSoup(media_assets_page_data)
+        media_assets_page_soup = BeautifulSoup(media_assets_page_data, 'lxml')
         filename_list = media_assets_page_soup.find_all('filename')
 
         for line in filename_list:
@@ -101,7 +101,7 @@ def get_subtitle_url_from_pid(episode_pid):
         return "Error"
 
 def get_first_version_url_from_episode_version_data(episode_versions_data):
-    episode_versions_soup = BeautifulSoup(episode_versions_data)
+    episode_versions_soup = BeautifulSoup(episode_versions_data, 'lxml')
     versions = []
     for version in episode_versions_soup.find_all('version', href=True):
         versions.append(version['href'])
